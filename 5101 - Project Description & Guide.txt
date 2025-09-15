@@ -1,0 +1,91 @@
+Class project guidelines: https://canvas.iastate.edu/courses/122459/pages/project-guidelines
+Transcribed below->
+
+INFORMATION REGARDING THE CLASS PROJECT
+
+	Project teams who follow the instructions in this document generally do well on their projects. It is best to start following the direction during the milestone stage. A secondary goal of the project is to provide practice in following instructions and writing a technical report (for each of the two milestones).
+
+	As an integral part of this course, students are asked to find and analyze their own data for a project. This class project is designed as a team assignment because real-world data work rarely happens in isolation. Collaborating in a group helps students practice essential teamwork skills such as communication, task coordination, and integrating different perspectives into a unified analysis. Working with peers allows students to divide responsibilities, making it possible to explore a larger, more complex dataset than any individual could reasonably handle alone. This not only deepens your ability to interpret and draw meaningful insights from real data but also mirrors the collaborative nature of professional data analysis, where success depends on combining technical skills with the ability to work effectively with others.
+
+	For each project, a brief (up to 10 minutes) but informative final presentation should explain where and how the data were obtained, how the analysis proceeded, including any problems that were encountered (and, how they were solved), results of the analysis and conclusions derived. Note that conciseness is one of the evaluation criteria. Suggestions and limitations for modeling should also be included. The presentation slides should be type set and include charts, graphs and/or tables, but no raw computer output. Do not include any tables and figures in your project presentations unless you refer to them. The data set and R code will need to be submitted with your final presentation. You will also be required to submit an executive summary (no longer than one page) with your final presentation. 
+
+
+1. Choosing Your Data Sets
+
+	There are many sources of time series data on the Internet. Government agencies are some of the best sources. But be resourceful. It is better to find a data set from a process that interests you. Please do not use data that is available in a statistical software package (examples include: SAS, R, JMP, Minitab etc.), textbooks, or online repositories of heavily analyzed data sets. There are some interesting data sets on Kaggle.com. If you would like to use one of them (or data from other similar repositories), you must go to the original source of the data and get up-to-date data. You may also use a non-confidential data set from your work or one of your research projects. Regardless of your source, you must provide the reference to the original data set within your milestone 1 and final presentation.
+
+	Other specifications for acceptable data sets:
+		- Your dataset should have at least 300 observations and at least 4 different explanatory variables.
+    - At least one of the explanatory variables should be categorical.
+
+
+2. Project Milestones and Submission
+
+	The purpose of the milestones is to provide feedback to project teams and to keep them on track and on schedule. You should follow the guidelines given in this document in preparing the milestones. That way, the second milestone can be easily extended into the final project presentation.
+
+	Milestones should be submitted  in Gradescope. Please write the Group name and list names of all team members in alphabetical order on the top of the document. Only one member of the group should submit the documents (I will set up Gradescope so that comments and grades are applied to all group members). For further information on how to submit on behalf of your entire group, please see [https://guides.gradescope.com/hc/en-us/articles/21863861823373-Adding-Group-Members-to-a-Submission]
+
+	Make sure that your final presentation is self-contained (e.g., it should contain all of the important material from the milestones, perhaps corrected based on feedback) and do not refer back to previous milestones in your final project. 
+	
+	
+3. Project Grading
+
+	Part of your grade will depend on how well you follow the further instructions and guidelines in this document. Specifically, the projects will be evaluated based on the following equally-weighted criteria:
+
+    - Was Milestone 1 turned in on time and done according to instructions?
+    - Was Milestone 2 turned in on time and done according to instructions?
+    - Was the problem described adequately in terms of goals of the analysis, source of the data, the background of the process that generated the data, and so forth?
+    - Is there an adequate executive summary?
+    - Are there adequate graphics and figures and have they been properly labeled with captions and described in the text?
+    - Were the tentative model identification and transformations done properly?
+    - Was the model fitting done well? Was there adequate discussion of sensible alternative models and an informative model-comparison table?
+    - Was the diagnostic checking done properly and completely? Were plots of residuals and Q-Q plots of the residuals properly interpreted?
+    - When prediction is included: were forecast and forecast intervals compared across models and was there an adequate explanation of differences? Was a hold-out analysis done?
+    - Was the presentation well organized, clear, and concise?
+    - Were the conclusions of the analysis stated clearly?
+    - Were the data set and R commands submitted on time?
+    - Was the project submitted on time?
+
+
+4. Brief description of expectations for Milestones
+
+	Milestone#1 will include 
+		- a brief description of the purpose of your analysis (stating no more than 3 research questions related to your data)
+    - a clear description of the data source
+    - exploratory analysis of the data (this includes graphs and summaries that are relevant to your goals for the analysis)
+
+	Milestone #2 will include
+    - a deeper dive into the questions motivating your analysis, and statistical modeling to answer those questions based on your data. 
+    - if your group plans to use some of the methodology to be studied in Module 7, please think how you can use methodology used up until the due date for Milestone 2 to address some of the questions.
+    - You are expected to incorporate analyses covered in the first 6 modules, so please make sure that you formulate your research questions and identify a data set that is suitable for working with more than two groups and including a regression component. You are welcome to include analysis from the last module (Module 7, factorial ANOVA and blocking), but this is entirely optional.
+
+	You will receive feedback about your data and your application of methodology for each of the milestones. There is a large time gap between Milestone 1 and Milestone 2 so that initial proposals can be revised or that inappropriate data can be replaced with something more suitable. I will include the rubric I use for project evaluation within the Milestone#1 assignment. Although not all rubric parts will apply for all submissions, it is good to see what items are important in assessing your work.
+	
+	
+5. More detailed Instructions, Guidelines, and Suggestions for the Projects
+
+  - Briefly describe the process from which your realization came and give the source of your data. If your data is publicly available, provide a URL That is, provide a specific reference so that someone else could find your data source.
+  - Explain the purpose of your analysis and modeling. 
+  - Use appropriate scaling of your data (e.g., use 808.35 million dollars instead of 808,350,000 dollars).
+  - If you have any “missing observations” explain the cause and explain how you dealt with the problem (for example, it may be appropriate to interpolate to fill in a missing value or remove missing observations).
+  - If fitting a regression model is part of your analysis, plot your response against all the proposed explanatory variables. Describe important features observed in these plots. 
+  - If Model selection for Regression is part of your analysis, use automated model selection tools to tentatively identify one or more possible models for your data. Use R to estimate at least two different tentative models for your data. Try as many models as are needed until you find one that adequately describes your data, but for your presentation, include the results for no more than 5 different models. Do not present the result for models that are obviously inappropriate (e.g., a quadratic regression when the pattern suggested by the plots is clearly linear).
+  - Briefly describe the steps that you followed in arriving at your “final” model or models.
+  - Briefly describe the behavior of the process that you have been studying and explain what you have learned about this process by studying the data. This part of the presentation should be no longer than necessary to convey the important information. Again, note that conciseness is one of the evaluation criteria.
+  - Once you have chosen whether to transform or not, stay with that choice for the complete analysis. Otherwise, modeling becomes too complicated. You only need to include the relevant plots in your final report (original data and after transformation, if one was used or seriously contemplated). If there was some question about whether a transformation is needed or not or what transformation to use, try alternatives after the initial analysis is complete. A plot of residuals versus predicted values and a comparison of prediction intervals are particularly useful in deciding whether to transform or not and what level of transformation to use.
+  - Give your data files meaningful names (e.g., MilkPrice) instead of short abbreviations (e.g. m).
+  - If prediction is part of your project, compare forecasts for the best two models. Briefly comment on any differences between the forecasts for these two models. When comparing two plots, the axes should be the same.  If you do a hold-out analysis, be sure to make your comparisons in the context of the prediction intervals. Displaying the results in a plot will be much better than a table.
+  - Reports and he final presentation should not include any raw computer output. Include only relevant figures and computer output. Note that output is relevant only if you refer to it in your write-up.
+  - Divide your reports and presentation into several logical sections and properly title and number each section. Also, include page numbers in both milestones.
+  - Your reports should be concise but complete. Your project will be graded on accuracy, completeness, the relevance of your graphical displays, tabular comparisons, and your statements, and on the report’s organization, conciseness, and neatness.
+  - Whenever possible, use graphs plus a few words to make your points. Number your figures and use informative captions. in your write up. In Word, you can use right-click, Insert Caption and in the caption give a brief description of what is in the figure. Refer to the figures by name and number (e.g. “Figure 1 is a scatterplot of the response (Milk price) versus producer.”)
+  - Figures and tables should be integrated into the text and not placed at the end of the report. You can control the size of the figures, but do not make them so small that the axis labels are difficult to read. In tables, avoid scientific notation like 1.631e-03 and use 0.00163 instead. For p-values < 0.001, use < 0.001 as the exact magnitude of smaller numbers has little meaning.
+  - Note that Word has capabilities to do simple formulas with Greek letters, subscripts, etc. Learn how to use these capabilities and use them in your project (Insert -> Symbol).
+  - The Executive Summary should be no longer than one page, giving the title, data set name, data source, research question(s), final model(s), and a brief description of your conclusions. 
+  - You should submit your final project via Canvas as prompted. For the final project submission you will need to
+	
+	Submit the following four (4) files:
+			- The project slides.
+			- The video presentation
+			- A copy of your data file (.csv, .xls(x) or .txt)
+			- Your R code file. This file should contain the R commands that you used in your project, in a logical order (so that I can reproduce your results if need be). Make sure that the commands you send correspond to the analyses in your report. This commands file should not contain any raw computer output or extraneous clutter (e.g., do not just send the R history without careful editing).
