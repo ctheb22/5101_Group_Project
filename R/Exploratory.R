@@ -13,7 +13,7 @@ library(readxl)
 
 
 #-------------------------------------------------------------------------------
-# Imports
+# Import Data Files
 #-------------------------------------------------------------------------------
 
 #'Adults and Brood' file:
@@ -31,7 +31,10 @@ library(readxl)
 #'  sheet 3: Adults 2022-23
 #'  sheet 4: Brood 2022-23
 
-df_AandB <- read_excel("./Data/Direct/Adults and brood 2021-2022.xlsx",
+df_Adults <- read_excel("./Data/Direct/Adults and brood 2021-2022.xlsx",
+                       sheet = 1)
+
+df_Brood <- read_excel("./Data/Direct/Adults and brood 2021-2022.xlsx",
                        sheet = 2)
 
 #'Continuous hive CO2':
