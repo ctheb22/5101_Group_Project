@@ -1,1 +1,1 @@
-https://agdatacommons.nal.usda.gov/articles/dataset/Bee_stock_colony_size_and_continuous_hive_weight_within-hive_temperature_and_within-hive_CO2_data/28196456?file=51652997
+https://corgis-edu.github.io/corgis/csv/classics/
