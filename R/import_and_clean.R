@@ -6,7 +6,7 @@
 #If needed, install tidyverse package using the comment below
 #install.packages("tidyverse")
 library(tidyverse)
-set_theme(theme_bw())
+theme_set(theme_bw())
 
 #Basically a dummy function that we can check the existence of other scripts 
 #to know if the this import script needs to be called with "source"
@@ -42,26 +42,138 @@ import_complete <- function(){
 #'  data source site. The metrics columns specifically should be well understood
 #'  before they're used or referenced due to how abstract they can be.
 
-
 df_classics <- read_csv("./Data/classics.csv")
 
-#To be cleaned:
-# bibliography.subjects - they're currently just a big string list of subject keywords
-# Maybe transform bibliography.congress classifications to their full descriptions
+#-------------------------------------------------------------------------------
+# 1. Column renaming section
+#-------------------------------------------------------------------------------
 
-#columns that can probably be dropped for convenience:
-# metadata.id
-# all the bibliography.publication data since they're not super useful. Its the
-#   publication date of the specific printing, so they're all in the 90s or 2000s
-#   which is not helpful for analyzing real publishing date of historic works.
-# at least some of the metric.difficulty columns. Probably trim it down to 3-4 at most.
+#peeling off unnecessary descriptors and generally shortening column names
+#Also removing spaces so we don't have to backtick every column name.
+colname_transform <- function(colname) {
+  colname |> str_replace_all(c(
+    "bibliography."       = "",
+    "metadata."           = "",
+    "publication"         = "pub",
+    "metrics.difficulty." = "",
+    "metrics.sentiments." = "",
+    "metrics.statistics." = "",
+    " "                   = ".",
+    "average"             = "avg",
+    ".per."               = "/"
+  ))
+}
 
-#We should maybe focus only on books with the PR or PS which refer to English and 
-#American literature, just to cut down on noise.
-#We probably should also think about whether the data is truly independent - if
-#one person writes 10 books, is each book a truly independent point, particularly
-#if we're looking at complexity of writing? We could zoom out to focus on a per
-#author sort of dataset rather than per book.
+#initial shortening of the column names to save time when accessing them later.
+df_classics |> names() <-
+  df_classics |> names() |> 
+    sapply(colname_transform)
+
+#Individual column renamings:
+#Change the name of the classification column to less of a mouthful
+names(df_classics)[names(df_classics) == 'congress.classifications'] <- 'class'
+#Rename this column to match the format of other like columns
+names(df_classics)[names(df_classics) == 'avg.sentence.length'] <- 
+  "avg.word/sentence"
+
+#Print the column names for reference
+names(df_classics)
+
+#-------------------------------------------------------------------------------
+# 2. Data Cleaning, Filtering, and Transformation Section
+#-------------------------------------------------------------------------------
+
+#Function for transforming
+discern_lit_class <- function(cstring) {
+  if(!is.na(cstring)) {
+    temp <- str_split_1(cstring, ",")
+    if(length(i <- grep("P.", temp, value=TRUE))) {
+      #Returns a string with all "P[x]" codes.
+      return(paste(sort(i), collapse = ','))
+    }
+  }
+  return("NOT LIT")
+}
+
+#transform the class column
+df_classics$class <-
+  df_classics |> pull(class) |>
+    sapply(discern_lit_class)
+
+# Now class is a comma seperated string with only these possible values:
+#   Combination of PA, PB, PC, PE, PG, PJ, PK, PL, PN, PQ, PR, PS, PZ, PT
+#   OR the string: "NOT LIT"
+
+#I don't know if we want to leave it like this, but
+#you can filter using grepl to find patterns in the class variable:
+# df_classics |> filter(grepl("PA", class)) |> pull(class) |> unique()
+
+#Other options would be individual columns for every classification with true or
+# false values indicating whether the book is in that classification, which adds
+# 13 columns to the data, but greatly simplifies filtering (although its harder
+# to automate since you need to check specific columns instead of a generic "class")
+
+#Or splitting class into class_1 and class_2 columns (since there are never more than
+#2 per book), but that makes filtering uglier and more complex since you would have
+# to check both columns for the class every time you wanted to filter.
+
+#filtering out all the "Not Lit" books
+df_classics <-
+  df_classics |> filter(class != "NOT LIT")
+
+#Print the resulting counts of distinct class (and class combinations) values
+print(n=100, 
+      arrange(df_classics |> group_by(class) |> summarize(n=n()), desc(n)))
+
+#-------------------------------------------------------------------------------
+# 3. Column Filtering Section
+#-------------------------------------------------------------------------------
+
+#' Columns we're removing with the selection:
+#'  type          : the type of media ("text" for all entries)
+#'  langugages    : the language the text is in ("en" for 965 of the observations)
+#'  id            : unique id used by gutenberg project
+#'  url           : unique url linking to gutenberg project page for the title
+#'  pub.day       : publication day (not useful, it's not the original publication)
+#'  pub.month     : publication month (not useful, it's not the original publication)
+#'  pub.month.name: publication month (not useful, it's not the original publication)
+#'  pub.year      : publication month (not useful, it's not the original publication)
+#'  pub.full      : publication full (not useful, it's not the original publication)
+#'  formats.total : int number of different download formats available
+#'  formats.type  : string list of different download formats available
+
+#Columns and order that we're keeping for the final version of this df
+df_classics <-
+  df_classics |>
+  select(c(
+    "title",          #Name of the book
+    "author.name",    #Name of the author
+    "author.birth",   #Birth year of the author (0 if unknown)
+    "author.death",   #Death year of the author (0 if unknown)
+    "class",          #Congress Classification
+    "subjects",       #Subject string (not for analysis)
+    "downloads",      #The number of times the text has been downloaded
+    "rank",           #The ranking of the title (based on download count)
+    "characters",          #Total number of characters in the book (letters & symbols)
+    "words",               #Total number of words in the book
+    "sentences",           #Total number of sentences in the book
+    "syllables",           #number of syllables? (not always an int?)
+    "polysyllables",       #Number of words with 3 or more syllables
+    "avg.letter/word",     #Average letters/word (rounded to 2 decimals?)
+    "avg.word/sentence",   #Average number of words/sentence (seems floor rounded)
+    "avg.sentence/word",   #Average sentence per word (inverse of above)
+    "automated.readability.index",  #difficulty rating (U.S. grade level)
+    "coleman.liau.index",           #difficulty rating (U.S. grade level)
+    "dale.chall.readability.score", #difficulty rating (U.S. grade level)
+    "difficult.words",              #difficulty rating (raw # of "difficult words")
+    "flesch.kincaid.grade",         #difficulty rating (U.S. grade level)
+    "flesch.reading.ease",          #difficulty rating (abstract, higher val = easier)
+    "gunning.fog",                  #difficulty rating ("years of formal education")
+    "linsear.write.formula",        #difficulty rating (U.S. grade level)
+    "smog.index",                   #difficulty rating ("years of education needed")
+    "polarity",                #"How positive or negative the author is towards the content"
+    "subjectivity"             #"whether the text is opinionated or attempts to stay factual"
+  ))
 
 print("--------------------------------------------")
 print("----> DATA HAS BEEN IMPORTED & CLEANED <----")

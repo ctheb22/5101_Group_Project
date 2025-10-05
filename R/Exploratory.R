@@ -7,52 +7,92 @@
 if(!exists("import_complete", mode="function")) source("./R/import_and_clean.R")
 
 #how common are different classifications
-congress_n <- df_classics |> group_by(`bibliography.congress classifications`) |>
-  summarize(n = n()) |> filter(n>50)
-ggplot(data=congress_n, mapping=aes(x=n)) +
-  geom_histogram()
+ggplot(data=df_classics, 
+       mapping=aes(x=fct_infreq(class))) +
+  geom_bar() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
-#Numbers of American, English, and romantic authors that appear x number of times
+#Numbers of authors that appear x number of times
 auth_n <- df_classics |> 
-  filter(`bibliography.congress classifications` %in% c("PR", "PS", "PQ")) |>
-  group_by(`bibliography.author.name`) |> 
+  group_by(author.name) |> 
   summarize(n = n())
-ggplot(data=auth_n, mapping=aes(x=n))+
-  geom_histogram()
+ggplot(data=df_classics |> group_by(author.name) |> summarize(n = n()), 
+       mapping=aes(y=n)) +
+  geom_histogram() + 
+  labs(y="# of books in dataset", x="# of authors")
 
 #There are few huge outliers, which also doesn't make sense given the number is
 # supposed to represent grade level. Also filtering down to a specific congress
 # classification
-df1 <- df_classics |>
-  filter(`metrics.difficulty.flesch kincaid grade` < 25, 
-         `metrics.difficulty.flesch kincaid grade` > 0,
-         `bibliography.congress classifications` == "PS")
+cp1 <- ggplot(data=df_classics |> 
+                filter(flesch.kincaid.grade < 25, flesch.kincaid.grade > 0), 
+              mapping = aes(x = rank))
 
+cp1 + 
+  geom_point(mapping=aes(
+    y = automated.readability.index
+  ))
 
-#various difficulties vs ranking (seems random, and the color legend is jacked)
-cp1 <- ggplot(data=df1, mapping = aes(x = metadata.rank))
+cp1 + 
+  geom_point(mapping=aes(
+    y = coleman.liau.index
+  ))
+
+cp1 + 
+  geom_point(mapping=aes(
+    y = dale.chall.readability.score
+  ))
+
+cp1 + 
+  geom_point(mapping=aes(
+    y = difficult.words
+  ))
+
 cp1 + 
   geom_point(
     mapping = aes(
-      y = `metrics.difficulty.flesch kincaid grade`,
-      color = "red"
-  )) +
+      y = flesch.kincaid.grade,
+  )) 
+
+cp1 +
   geom_point(
     mapping = aes(
-      y = `metrics.difficulty.dale chall readability score`,
-      color = "blue"
-  )) +
+      y = flesch.reading.ease,
+  ))
+
+cp1 + 
   geom_point(
     mapping = aes(
-      y = `metrics.difficulty.smog index`,
-      color = "green"
+      y = gunning.fog,
+    )) 
+
+cp1 +
+  geom_point(
+    mapping = aes(
+      y = linsear.write.formula,
+    ))
+
+cp1 + 
+  geom_point(mapping=aes(
+    y = smog.index
+  ))
+
+cp1 +
+  geom_point(mapping=aes(
+   y = polarity
   ))
 
 #one difficulty metric vs another
-cp2 <- ggplot(data=df1, mapping = aes(x = `metrics.difficulty.dale chall readability score`))
+cp2 <- ggplot(data=df_classics, mapping = aes(x = dale.chall.readability.score))
 cp2 + 
   geom_point(
     mapping = aes(
-      y = `metrics.difficulty.flesch kincaid grade`,
-      color = "red"
+      y = flesch.kincaid.grade
     ))
+
+#Polarity vs subjectivity
+ggplot(data = df_classics) +
+  geom_point(mapping = aes(
+    x = subjectivity,
+    y = polarity
+  ))
