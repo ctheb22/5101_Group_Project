@@ -3,37 +3,56 @@
 # Purpose       : Initial/experimental exploration of the data
 #-------------------------------------------------------------------------------
 
-#If needed, install tidyverse package using the comment below
-#install.packages("tidyverse")
-library(tidyverse)
+#check if we've already imported/cleaned, and do so if we haven't.
+if(!exists("import_complete", mode="function")) source("./R/import_and_clean.R")
 
-#-------------------------------------------------------------------------------
-# Import Data File
-#-------------------------------------------------------------------------------
+#how common are different classifications
+congress_n <- df_classics |> group_by(`bibliography.congress classifications`) |>
+  summarize(n = n()) |> filter(n>50)
+ggplot(data=congress_n, mapping=aes(x=n)) +
+  geom_histogram()
 
-#'Classics.csv
-#'Data format:
-#'  1007 rows (including a header row), each representing a different literary
-#'    work from the Gutenburg Project
-#'  
-#'  Many different columns broken into different subcatagories specified by the
-#'    leading words of the column name:
-#'  - "bibliography.[specific col]": columns concerning specific publication values
-#'      such as author, publish date, subject, language, etc.
-#'  - "metadata.[specific col]": columns relating to gutenburg project metadata such
-#'      as number of downloads and Gutenburg project popularity ranking
-#'  - "metrics.difficulty.[specific col]": columns containing difficulty ratings
-#'      calculated via many different specific standard indexes/methods
-#'  - "metrics.sentiments.[specific col]": columns attempting to numerically rate
-#'      each book based on public sentiment regarding the text such as polarity,
-#'      or subjectivity
-#'  - "metrics.statistics.[specific col]": columns containing specific calculated 
-#'      statistics for the given text such as "average sentance length", "letter
-#'      per word" and "characters" (total number of characters).
-#'
-#'  Many of the columns have specific explanations about what they represent on the
-#'  data source site. The metrics columns specifically should be well understood
-#'  before they're used or referenced due to how abstract they can be.
- 
+#Numbers of American, English, and romantic authors that appear x number of times
+auth_n <- df_classics |> 
+  filter(`bibliography.congress classifications` %in% c("PR", "PS", "PQ")) |>
+  group_by(`bibliography.author.name`) |> 
+  summarize(n = n())
+ggplot(data=auth_n, mapping=aes(x=n))+
+  geom_histogram()
 
-df_classics <- read_csv("./Data/classics.csv")
+#There are few huge outliers, which also doesn't make sense given the number is
+# supposed to represent grade level. Also filtering down to a specific congress
+# classification
+df1 <- df_classics |>
+  filter(`metrics.difficulty.flesch kincaid grade` < 25, 
+         `metrics.difficulty.flesch kincaid grade` > 0,
+         `bibliography.congress classifications` == "PS")
+
+
+#various difficulties vs ranking (seems random, and the color legend is jacked)
+cp1 <- ggplot(data=df1, mapping = aes(x = metadata.rank))
+cp1 + 
+  geom_point(
+    mapping = aes(
+      y = `metrics.difficulty.flesch kincaid grade`,
+      color = "red"
+  )) +
+  geom_point(
+    mapping = aes(
+      y = `metrics.difficulty.dale chall readability score`,
+      color = "blue"
+  )) +
+  geom_point(
+    mapping = aes(
+      y = `metrics.difficulty.smog index`,
+      color = "green"
+  ))
+
+#one difficulty metric vs another
+cp2 <- ggplot(data=df1, mapping = aes(x = `metrics.difficulty.dale chall readability score`))
+cp2 + 
+  geom_point(
+    mapping = aes(
+      y = `metrics.difficulty.flesch kincaid grade`,
+      color = "red"
+    ))
