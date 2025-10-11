@@ -3,13 +3,13 @@
 # Purpose       : Initial/experimental exploration of the data
 #-------------------------------------------------------------------------------
 
-#If needed, install tidyverse package using the comment below
-#install.packages("tidyverse")
+# If needed, install tidyverse package using the comment below
+# install.packages("tidyverse")
 library(tidyverse)
 theme_set(theme_bw())
 
-#Basically a dummy function that we can check the existence of other scripts 
-#to know if the this import script needs to be called with "source"
+# Basically a dummy function that we can check the existence of from other
+# scripts to know if the this import script needs to be called with "source"
 import_complete <- function(){
   TRUE
 }
@@ -48,8 +48,8 @@ df_classics <- read_csv("./Data/classics.csv")
 # 1. Column renaming section
 #-------------------------------------------------------------------------------
 
-#peeling off unnecessary descriptors and generally shortening column names
-#Also removing spaces so we don't have to backtick every column name.
+# peeling off unnecessary descriptors and generally shortening column names
+# Also removing spaces so we don't have to backtick every column name.
 colname_transform <- function(colname) {
   colname |> str_replace_all(c(
     "bibliography."       = "",
@@ -64,26 +64,26 @@ colname_transform <- function(colname) {
   ))
 }
 
-#initial shortening of the column names to save time when accessing them later.
+# initial shortening of the column names to save time when accessing them later.
 df_classics |> names() <-
   df_classics |> names() |> 
     sapply(colname_transform)
 
-#Individual column renamings:
-#Change the name of the classification column to less of a mouthful
+# Individual column renamings:
+# Change the name of the classification column to less of a mouthful
 names(df_classics)[names(df_classics) == 'congress.classifications'] <- 'class'
-#Rename this column to match the format of other like columns
+# Rename this column to match the format of other like columns
 names(df_classics)[names(df_classics) == 'avg.sentence.length'] <- 
   "avg.word/sentence"
 
-#Print the column names for reference
+# Print the column names for reference
 names(df_classics)
 
 #-------------------------------------------------------------------------------
 # 2. Data Cleaning, Filtering, and Transformation Section
 #-------------------------------------------------------------------------------
 
-#Function for transforming
+# Function for transforming
 discern_lit_class <- function(cstring) {
   if(!is.na(cstring)) {
     temp <- str_split_1(cstring, ",")
@@ -95,7 +95,7 @@ discern_lit_class <- function(cstring) {
   return("NOT LIT")
 }
 
-#transform the class column
+# transform the class column
 df_classics$class <-
   df_classics |> pull(class) |>
     sapply(discern_lit_class)
@@ -104,24 +104,46 @@ df_classics$class <-
 #   Combination of PA, PB, PC, PE, PG, PJ, PK, PL, PN, PQ, PR, PS, PZ, PT
 #   OR the string: "NOT LIT"
 
-#I don't know if we want to leave it like this, but
-#you can filter using grepl to find patterns in the class variable:
-# df_classics |> filter(grepl("PA", class)) |> pull(class) |> unique()
+# I don't know if we want to leave it like this, but
+# you can filter using grepl to find patterns in the class variable:
+#  df_classics |> filter(grepl("PA", class)) |> pull(class) |> unique()
 
-#Other options would be individual columns for every classification with true or
+# This is a helper function to be called outside this file if needed.
+create_single_class_sorted_df <- function(df, colname){
+  # There are 14 different individual classes
+  classes = c("PA", "PB", "PC", "PE", "PG", "PJ", "PK", "PL", "PN", "PQ", "PR",
+              "PS", "PT", "PZ")
+  
+  # Build the structure for the df that we will eventually return
+  cols = c("class", colname)
+  sc_df = tribble(~x, ~y)
+  names(sc_df) <- cols
+  
+  #filter by every individual class and add their values to sc_df
+  for(cl in classes){
+    temp <- df |> filter(grepl(cl, class)) |> select(colname)
+    temp$class <- cl
+    sc_df <- bind_rows(sc_df, temp)
+  }
+  
+  #return this long df with two columns
+  return(sc_df)
+}
+
+# Other options would be individual columns for every classification with true or
 # false values indicating whether the book is in that classification, which adds
 # 13 columns to the data, but greatly simplifies filtering (although its harder
 # to automate since you need to check specific columns instead of a generic "class")
 
-#Or splitting class into class_1 and class_2 columns (since there are never more than
-#2 per book), but that makes filtering uglier and more complex since you would have
+# Or splitting class into class_1 and class_2 columns (since there are never more than
+# 2 per book), but that makes filtering uglier and more complex since you would have
 # to check both columns for the class every time you wanted to filter.
 
-#filtering out all the "Not Lit" books
+# filtering out all the "Not Lit" books
 df_classics <-
   df_classics |> filter(class != "NOT LIT")
 
-#Print the resulting counts of distinct class (and class combinations) values
+# Print the resulting counts of distinct class (and class combinations) values
 print(n=100, 
       arrange(df_classics |> group_by(class) |> summarize(n=n()), desc(n)))
 
@@ -141,8 +163,11 @@ print(n=100,
 #'  pub.full      : publication full (not useful, it's not the original publication)
 #'  formats.total : int number of different download formats available
 #'  formats.type  : string list of different download formats available
+#'  smog.index          : difficulty rating (not being used, due to odd values)
+#'  flesch.reading.ease : difficulty rating (not being used, not grade level)
+#'  difficult .words    : difficulty rating (not being used, not grade level)
 
-#Columns and order that we're keeping for the final version of this df
+# Columns and order that we're keeping for the final version of this df
 df_classics <-
   df_classics |>
   select(c(
@@ -165,12 +190,9 @@ df_classics <-
     "automated.readability.index",  #difficulty rating (U.S. grade level)
     "coleman.liau.index",           #difficulty rating (U.S. grade level)
     "dale.chall.readability.score", #difficulty rating (U.S. grade level)
-    "difficult.words",              #difficulty rating (raw # of "difficult words")
     "flesch.kincaid.grade",         #difficulty rating (U.S. grade level)
-    "flesch.reading.ease",          #difficulty rating (abstract, higher val = easier)
     "gunning.fog",                  #difficulty rating ("years of formal education")
     "linsear.write.formula",        #difficulty rating (U.S. grade level)
-    "smog.index",                   #difficulty rating ("years of education needed")
     "polarity",                #"How positive or negative the author is towards the content"
     "subjectivity"             #"whether the text is opinionated or attempts to stay factual"
   ))
