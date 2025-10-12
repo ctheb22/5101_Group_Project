@@ -83,16 +83,17 @@ names(df_classics)
 # 2. Data Cleaning, Filtering, and Transformation Section
 #-------------------------------------------------------------------------------
 
-# Function for transforming
+# Function for searching for the classes we care about PR, PS, PQ, PA, PT
+# and renaming the class column accordingly, dropping other classes.
 discern_lit_class <- function(cstring) {
   if(!is.na(cstring)) {
     temp <- str_split_1(cstring, ",")
-    if(length(i <- grep("P.", temp, value=TRUE))) {
+    if(length(i <- grep("P[RSQAT]", temp, value=TRUE))) {
       #Returns a string with all "P[x]" codes.
       return(paste(sort(i), collapse = ','))
     }
   }
-  return("NOT LIT")
+  return("NOT IN SCOPE")
 }
 
 # transform the class column
@@ -101,51 +102,29 @@ df_classics$class <-
     sapply(discern_lit_class)
 
 # Now class is a comma seperated string with only these possible values:
-#   Combination of PA, PB, PC, PE, PG, PJ, PK, PL, PN, PQ, PR, PS, PZ, PT
-#   OR the string: "NOT LIT"
+#   Combination of PA, PQ, PR, PS, PT
+#   OR the string: "NOT IN SCOPE"
 
 # I don't know if we want to leave it like this, but
 # you can filter using grepl to find patterns in the class variable:
 #  df_classics |> filter(grepl("PA", class)) |> pull(class) |> unique()
 
-# This is a helper function to be called outside this file if needed.
-create_single_class_sorted_df <- function(df, colname){
-  # There are 14 different individual classes
-  classes = c("PA", "PB", "PC", "PE", "PG", "PJ", "PK", "PL", "PN", "PQ", "PR",
-              "PS", "PT", "PZ")
-  
-  # Build the structure for the df that we will eventually return
-  cols = c("class", colname)
-  sc_df = tribble(~x, ~y)
-  names(sc_df) <- cols
-  
-  #filter by every individual class and add their values to sc_df
-  for(cl in classes){
-    temp <- df |> filter(grepl(cl, class)) |> select(colname)
-    temp$class <- cl
-    sc_df <- bind_rows(sc_df, temp)
-  }
-  
-  #return this long df with two columns
-  return(sc_df)
-}
-
-# Other options would be individual columns for every classification with true or
-# false values indicating whether the book is in that classification, which adds
-# 13 columns to the data, but greatly simplifies filtering (although its harder
-# to automate since you need to check specific columns instead of a generic "class")
-
-# Or splitting class into class_1 and class_2 columns (since there are never more than
-# 2 per book), but that makes filtering uglier and more complex since you would have
-# to check both columns for the class every time you wanted to filter.
-
-# filtering out all the "Not Lit" books
+# filtering out all the "Not Lit" books, and classes that we aren't interested in.
 df_classics <-
-  df_classics |> filter(class != "NOT LIT")
+  df_classics |> 
+  filter(class != "NOT IN SCOPE")
 
 # Print the resulting counts of distinct class (and class combinations) values
 print(n=100, 
       arrange(df_classics |> group_by(class) |> summarize(n=n()), desc(n)))
+
+#Now generate the binned ranking column:
+#This creates a new rank.bin column with ranks sorted into 10 ~100 width bins
+df_classics <- df_classics |> mutate(rank.bin = cut_interval(
+  rank,
+  length = 100,
+  right = F
+))
 
 #-------------------------------------------------------------------------------
 # 3. Column Filtering Section

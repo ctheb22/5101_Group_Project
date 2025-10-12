@@ -21,7 +21,7 @@ df_avg_class <- dfc |>
     n = n()
   )
 
-dfprint(n=100, df_avg_class)
+print(n=100, df_avg_class)
 
 class_plot <- ggplot(data=dfc)+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
@@ -32,7 +32,7 @@ class_plot +
    y = subjectivity
   ))
 
-c_avg_plot <- ggplot(data=df_avg_class)+
+c_avg_plot <- ggplot(data=df_avg_class) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
 c_avg_plot + 
