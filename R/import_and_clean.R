@@ -101,13 +101,34 @@ df_classics$class <-
   df_classics |> pull(class) |>
     sapply(discern_lit_class)
 
-# Now class is a comma seperated string with only these possible values:
+# Now class is a comma separated string with only these possible values:
 #   Combination of PA, PQ, PR, PS, PT
 #   OR the string: "NOT IN SCOPE"
 
-# I don't know if we want to leave it like this, but
 # you can filter using grepl to find patterns in the class variable:
 #  df_classics |> filter(grepl("PA", class)) |> pull(class) |> unique()
+
+# Helper function to split dual classifications into two records, one for each.
+# Returns a long 2 column (class, [colname]) df.
+create_single_class_sorted_df <- function(df, colname){
+  # There are 14 different individual classes
+  classes = c("PA", "PQ", "PR", "PS", "PT")
+  
+  # Build the structure for the df that we will eventually return
+  cols = c("class", colname)
+  sc_df = tribble(~x, ~y)
+  names(sc_df) <- cols
+  
+  #filter by every individual class and add their values to sc_df
+  for(cl in classes){
+    temp <- df |> filter(grepl(cl, class)) |> select(all_of(colname))
+    temp$class <- cl
+    sc_df <- bind_rows(sc_df, temp)
+  }
+  
+  #return this long df with two columns
+  return(sc_df)
+}
 
 # filtering out all the "Not Lit" books, and classes that we aren't interested in.
 df_classics <-
@@ -168,6 +189,7 @@ df_classics <-
     "subjects",       #Subject string (not for analysis)
     "downloads",      #The number of times the text has been downloaded
     "rank",           #The ranking of the title (based on download count)
+    "rank.bin",       #The binned ranking of titles (bin width = 100)
     "characters",          #Total number of characters in the book (letters & symbols)
     "words",               #Total number of words in the book
     "sentences",           #Total number of sentences in the book
