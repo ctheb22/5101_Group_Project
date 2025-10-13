@@ -126,6 +126,16 @@ df_classics <- df_classics |> mutate(rank.bin = cut_interval(
   right = F
 ))
 
+#Recalculate the smog index and the linsear write formula.
+df_classics <- df_classics |> mutate(smog.index = 1.0430*sqrt(polysyllables*(30/sentences))+3.1291) |>
+  mutate(smog.index = 1.0430*sqrt(polysyllables*(30/sentences))+3.1291,
+         linsear.write.formula_raw = ((words - polysyllables) + ( 3 * polysyllables)) / sentences,
+         linsear.write.formula = if_else(
+           linsear.write.formula_raw > 20,
+           linsear.write.formula_raw / 2,
+           (linsear.write.formula_raw / 2) - 1)
+         )
+
 #-------------------------------------------------------------------------------
 # 3. Column Filtering Section
 #-------------------------------------------------------------------------------
@@ -142,9 +152,9 @@ df_classics <- df_classics |> mutate(rank.bin = cut_interval(
 #'  pub.full      : publication full (not useful, it's not the original publication)
 #'  formats.total : int number of different download formats available
 #'  formats.type  : string list of different download formats available
-#'  smog.index          : difficulty rating (not being used, due to odd values)
 #'  flesch.reading.ease : difficulty rating (not being used, not grade level)
 #'  difficult .words    : difficulty rating (not being used, not grade level)
+#'  linsear.write.formula_raw : raw conversion no longer needed
 
 # Columns and order that we're keeping for the final version of this df
 df_classics <-
@@ -172,6 +182,7 @@ df_classics <-
     "flesch.kincaid.grade",         #difficulty rating (U.S. grade level)
     "gunning.fog",                  #difficulty rating ("years of formal education")
     "linsear.write.formula",        #difficulty rating (U.S. grade level)
+    "smog.index",                   #difficulty rating (U.S. grade level)
     "polarity",                #"How positive or negative the author is towards the content"
     "subjectivity"             #"whether the text is opinionated or attempts to stay factual"
   ))
