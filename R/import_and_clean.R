@@ -5,7 +5,9 @@
 
 # If needed, install tidyverse package using the comment below
 # install.packages("tidyverse")
+# install.packages("emmeans")
 library(tidyverse)
+library(emmeans)
 theme_set(theme_bw())
 
 # Basically a dummy function that we can check the existence of from other
@@ -169,7 +171,7 @@ df_classics <- df_classics |> mutate(smog.index = 1.0430*sqrt(polysyllables*(30/
 #'  pub.day       : publication day (not useful, it's not the original publication)
 #'  pub.month     : publication month (not useful, it's not the original publication)
 #'  pub.month.name: publication month (not useful, it's not the original publication)
-#'  pub.year      : publication month (not useful, it's not the original publication)
+#'  pub.year      : publication year (not useful, it's not the original publication)
 #'  pub.full      : publication full (not useful, it's not the original publication)
 #'  formats.total : int number of different download formats available
 #'  formats.type  : string list of different download formats available
