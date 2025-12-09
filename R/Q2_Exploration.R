@@ -14,7 +14,7 @@ dfc <- create_single_class_sorted_df(df_classics, "subjectivity")
 
 
 # -------------------- Generate Milestone 1 Plots ------------------------------
-class_plot <- ggplot(data=dfc)+
+class_plot <- ggplot(data=dfc) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
 class_plot +
@@ -148,3 +148,5 @@ levels(dfcf$class)
 dfcf.emm <- emmeans(dfcf.lm, 'class')
 coef = list(english=c(-.5, -.5, .5, .5))
 dfcf.cont.emm <- contrast(dfcf.emm, coef)
+
+summary(dfcf.cont.emm)
