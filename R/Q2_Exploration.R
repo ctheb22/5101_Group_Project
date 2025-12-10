@@ -149,4 +149,12 @@ dfcf.emm <- emmeans(dfcf.lm, 'class')
 coef = list(english=c(-.5, -.5, .5, .5))
 dfcf.cont.emm <- contrast(dfcf.emm, coef)
 
-summary(dfcf.cont.emm)
+dfcf.cont.emm
+
+orths <- list(eng_v_tra  =c(-.5, -.5, .5, .5), 
+              english    =c(  0,   0,  1, -1), 
+              translated =c(  1,  -1,  0,  0)
+)
+
+dfcf.orths.emm <- contrast(dfcf.emm, orths)
+dfcf.orths.emm
