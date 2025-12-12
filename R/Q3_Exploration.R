@@ -66,16 +66,14 @@ diff_gg_log + geom_boxplot(mapping = aes(fill=index)) +
   ) +
   theme(axis.text = element_text(angle = 45, hjust = 1))
 
-
-#df_long_diff_log = df_long_diff_log |> filter(index != "dale.chall.readability.score")
-
 model = lm(rating ~ index, data = df_long_diff_log)
 summary(model)
 
+#qq
 qqnorm(residuals(model), main = "Fig 3.2 QQ Plot of Residuals")
 qqline(residuals(model), col = "blue", lwd = 2)
 
-# 2. Residuals vs. Predicted Plot
+# Residuals vs. Predicted Plot
 plot(fitted(model), residuals(model),
      xlab = "Predicted Values",
      ylab = "Residuals",
@@ -83,6 +81,7 @@ plot(fitted(model), residuals(model),
      pch = 19, col = "darkgreen")
 abline(h = 0, col = "red", lwd = 2)
 
+#find max sd ratio
 rating_sd  = tapply(df_long_diff_log$rating, df_long_diff_log$index, sd)
 
 max_sd_ratio = 0
@@ -106,6 +105,7 @@ max_sd_ratio_str
 
 anova_m = aov(rating ~ index,data = df_long_diff_log )
 
+#get anova
 summary(anova_m)
 
 # Run Tukey's Honest Significant Difference test
@@ -114,18 +114,16 @@ tukey_result <- TukeyHSD(anova_m)
 # View results
 tukey_result
 
-plot(tukey_result)
+#plot(tukey_result)
 
-mr = lm(rating ~ words + sentences + syllables + polysyllables , data = subset(df_long_diff_log,index=="automated.readability.index"))
-mr = lm(rating ~ 0 + index + words + syllables + polysyllables , data = df_long_diff_log)
 mr = lm(rating ~ 0 + index  , data = df_long_diff_log)
 
-
+# see linear reg results
 summary(mr)
 
-df_long_diff_log$resid <- residuals(mr)
-ggplot(df_long_diff_log, aes(x = index, y = resid)) +
-  geom_boxplot()
+#df_long_diff_log$resid <- residuals(mr)
+#ggplot(df_long_diff_log, aes(x = index, y = resid)) +
+#  geom_boxplot()
 
-qqnorm(residuals(mr), main = "QQ Plot of Residuals")
-qqline(residuals(mr), col = "blue", lwd = 2)
+#qqnorm(residuals(mr), main = "QQ Plot of Residuals")
+#qqline(residuals(mr), col = "blue", lwd = 2)
